@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- Background circle -->
+  <circle cx="90" cy="90" r="90" fill="#10B981"/>
+  
+  <!-- Quran book shape -->
+  <g transform="translate(90, 90)">
+    <!-- Left page -->
+    <path d="M -35 -40 L -8 -40 L -8 40 L -35 40 Z" fill="#ffffff" opacity="0.9"/>
+    
+    <!-- Right page -->
+    <path d="M 8 -40 L 35 -40 L 35 40 L 8 40 Z" fill="#f0f9ff" opacity="0.95"/>
+    
+    <!-- Spine -->
+    <rect x="-8" y="-40" width="16" height="80" fill="#059669"/>
+    
+    <!-- Islamic crescent and star -->
+    <g transform="translate(0, -50)">
+      <!-- Crescent -->
+      <path d="M -8 -8 A 12 12 0 0 1 8 -8" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Star -->
+      <circle cx="0" cy="-8" r="1.5" fill="#FFD700"/>
+    </g>
+    
+    <!-- Decorative lines on pages -->
+    <line x1="-32" y1="-30" x2="-12" y2="-30" stroke="#e5e7eb" stroke-width="1.5"/>
+    <line x1="-32" y1="-20" x2="-12" y2="-20" stroke="#e5e7eb" stroke-width="1.5"/>
+    <line x1="-32" y1="-10" x2="-12" y2="-10" stroke="#e5e7eb" stroke-width="1.5"/>
+    <line x1="-32" y1="0" x2="-12" y2="0" stroke="#e5e7eb" stroke-width="1.5"/>
+    <line x1="-32" y1="10" x2="-12" y2="10" stroke="#e5e7eb" stroke-width="1.5"/>
+    <line x1="-32" y1="20" x2="-12" y2="20" stroke="#e5e7eb" stroke-width="1.5"/>
+    <line x1="-32" y1="30" x2="-12" y2="30" stroke="#e5e7eb" stroke-width="1.5"/>
+    
+    <line x1="12" y1="-30" x2="32" y2="-30" stroke="#d1d5db" stroke-width="1.5"/>
+    <line x1="12" y1="-20" x2="32" y2="-20" stroke="#d1d5db" stroke-width="1.5"/>
+    <line x1="12" y1="-10" x2="32" y2="-10" stroke="#d1d5db" stroke-width="1.5"/>
+    <line x1="12" y1="0" x2="32" y2="0" stroke="#d1d5db" stroke-width="1.5"/>
+    <line x1="12" y1="10" x2="32" y2="10" stroke="#d1d5db" stroke-width="1.5"/>
+    <line x1="12" y1="20" x2="32" y2="20" stroke="#d1d5db" stroke-width="1.5"/>
+    <line x1="12" y1="30" x2="32" y2="30" stroke="#d1d5db" stroke-width="1.5"/>
+  </g>
+</svg>

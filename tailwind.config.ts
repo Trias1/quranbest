@@ -9,12 +9,12 @@ const config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    // Global container configuration to center all content
     container: {
       center: true,
       padding: "1rem",
       screens: {
-        sm: "600px",
+        xs: "320px",
+        sm: "640px",
         md: "728px",
         lg: "984px",
         xl: "1240px",
@@ -28,13 +28,21 @@ const config = {
         accent: "#F59E0B",
         destructive: "#EF4444",
         background: "#FFFFFF",
+        "background-dark": "#1F2937",
         foreground: "#000000",
+        "foreground-dark": "#F3F4F6",
         muted: "#6B7280",
         "muted-foreground": "#9CA3AF",
       },
       fontFamily: {
         sans: ["var(--font-inter)", ...defaultTheme.fontFamily.sans],
         arabic: ["var(--font-uthman-taha)", ...defaultTheme.fontFamily.serif],
+      },
+      spacing: {
+        safe: "env(safe-area-inset-bottom)",
+      },
+      minHeight: {
+        "screen-safe": "100dvh",
       },
     },
   },
