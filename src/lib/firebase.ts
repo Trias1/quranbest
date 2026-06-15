@@ -12,6 +12,11 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
+// Validate Firebase configuration
+if (!firebaseConfig.projectId) {
+  console.warn("⚠️ Firebase: Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID environment variable")
+}
+
 const app = initializeApp(firebaseConfig)
 
 export const auth = getAuth(app)
