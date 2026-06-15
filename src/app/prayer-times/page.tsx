@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Clock, MapPin, Calendar } from "lucide-react"
 
 interface PrayerTime {
@@ -17,7 +17,13 @@ export default function PrayerTimesPage() {
   const [loading, setLoading] = useState(true)
   const [monthlySchedule, setMonthlySchedule] = useState<any[]>([])
 
-  const fetchPrayerTimes = async (lat: number, lng: number) => {
+  const addMinutes = useCallback((time: string, mins: number): string => {
+    const [h, m] = time.split(":").map(Number)
+    const total = h * 60 + m + mins
+    return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`
+  }, [])
+
+  const fetchPrayerTimes = useCallback(async (lat: number, lng: number) => {
     try {
       const today = new Date()
       const dd = String(today.getDate()).padStart(2, "0")
@@ -62,13 +68,7 @@ export default function PrayerTimesPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  function addMinutes(time: string, mins: number): string {
-    const [h, m] = time.split(":").map(Number)
-    const total = h * 60 + m + mins
-    return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`
-  }
+  }, [addMinutes])
 
   useEffect(() => {
     if (navigator.geolocation) {
