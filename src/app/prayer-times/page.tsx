@@ -85,7 +85,7 @@ export default function PrayerTimesPage() {
     } else {
       fetchPrayerTimes(-6.2088, 106.8456)
     }
-  }, [])
+  }, [fetchPrayerTimes])
 
   if (loading) {
     return (

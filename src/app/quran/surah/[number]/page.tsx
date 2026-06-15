@@ -6,7 +6,7 @@ import Link from "next/link"
 import { collection, query, where, getDocs, doc, deleteDoc, addDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import { useAuth } from "@/hooks/useAuth"
-import { Bookmark, Share2, Copy, ChevronLeft, Play, Pause, Loader2, ArrowRight, Info } from "lucide-react"
+import { Bookmark, Copy, ChevronLeft, Play, Pause, Loader2, ArrowRight, Info, BookOpen } from "lucide-react"
 
 interface SurahData {
   id: string
