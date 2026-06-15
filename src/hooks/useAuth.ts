@@ -1,14 +1,20 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { authService } from "@/lib/auth"
 
 export function useAuth() {
-  const { user, loading, setUser } = useAuthStore()
+  const { user, setUser } = useAuthStore()
+  const [loading, setLoading] = useState(true)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
+    let mounted = true
+
     const unsubscribe = authService.onAuthStateChanged((currentUser) => {
+      if (!mounted) return
+
       if (currentUser) {
         setUser({
           uid: currentUser.uid,
@@ -20,10 +26,16 @@ export function useAuth() {
       } else {
         setUser(null)
       }
+
+      setLoading(false)
+      setInitialized(true)
     })
 
-    return () => unsubscribe()
+    return () => {
+      mounted = false
+      unsubscribe()
+    }
   }, [setUser])
 
-  return { user, loading }
+  return { user, loading: loading || !initialized }
 }
