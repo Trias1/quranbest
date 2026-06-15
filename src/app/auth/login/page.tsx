@@ -59,45 +59,45 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-green-700 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary to-green-700 dark:from-green-800 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">QuranBest</h1>
-          <p className="text-gray-600">Masuk ke akun Anda</p>
+          <h1 className="text-3xl font-bold text-primary dark:text-green-400 mb-2">QuranBest</h1>
+          <p className="text-gray-600 dark:text-gray-400">Masuk ke akun Anda</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-300 text-red-700 rounded-lg text-sm">
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm">
             ⚠️ {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-2">Email</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:border-primary transition">
-              <Mail size={20} className="text-gray-400" />
+            <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-200">Email</label>
+            <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus-within:border-primary dark:focus-within:border-green-400 transition bg-white dark:bg-gray-700">
+              <Mail size={20} className="text-gray-400 dark:text-gray-500" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="ml-2 flex-1 outline-none"
+                className="ml-2 flex-1 outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2">Kata Sandi</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:border-primary transition">
-              <Lock size={20} className="text-gray-400" />
+            <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-200">Kata Sandi</label>
+            <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus-within:border-primary dark:focus-within:border-green-400 transition bg-white dark:bg-gray-700">
+              <Lock size={20} className="text-gray-400 dark:text-gray-500" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Masukkan kata sandi"
-                className="ml-2 flex-1 outline-none"
+                className="ml-2 flex-1 outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 required
               />
             </div>
@@ -106,7 +106,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-primary text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-2 bg-primary dark:bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 dark:hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading && <Loader size={20} className="animate-spin" />}
             {loading ? "Memproses..." : "Masuk"}
@@ -114,15 +114,15 @@ export default function LoginPage() {
         </form>
 
         <div className="my-6 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="text-gray-500 text-sm">atau</span>
-          <div className="flex-1 h-px bg-gray-300" />
+          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
+          <span className="text-gray-500 dark:text-gray-400 text-sm">atau</span>
+          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
         </div>
 
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -133,9 +133,9 @@ export default function LoginPage() {
           Masuk dengan Google
         </button>
 
-        <p className="text-center text-gray-600 mt-6 text-sm">
+        <p className="text-center text-gray-600 dark:text-gray-400 mt-6 text-sm">
           Belum punya akun?{" "}
-          <Link href="/auth/register" className="text-primary font-semibold hover:underline">
+          <Link href="/auth/register" className="text-primary dark:text-green-400 font-semibold hover:underline">
             Daftar sekarang
           </Link>
         </p>
