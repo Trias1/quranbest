@@ -63,8 +63,11 @@ export default function Home() {
       </section>
 
       {/* Prayer Times */}
-      <section className="py-8">
-        <div className="container"><PrayerTimes /></div>
+      <section className="py-16 bg-white">
+        <div className="container">
+          <h2 className="text-3xl font-bold mb-8">Jadwal Sholat Hari Ini</h2>
+          <PrayerTimes />
+        </div>
       </section>
 
       {/* Quick Access Surah */}
@@ -125,16 +128,16 @@ export default function Home() {
       </section>
 
       {/* Latest Articles from Firestore */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 bg-gray-50">
         <div className="container">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-12">
             <div>
               <h2 className="text-3xl font-bold">Artikel Terbaru</h2>
-              <p className="text-gray-600 mt-1">Konten edukasi untuk memperdalam pemahaman Islam</p>
+              <p className="text-gray-600 mt-2">Konten edukasi untuk memperdalam pemahaman Islam</p>
             </div>
-            <Link href="/articles" className="hidden sm:inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">Lihat Semua</Link>
+            <Link href="/articles" className="hidden sm:inline-block px-6 py-2 bg-primary text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">Lihat Semua →</Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {latestArticles.length > 0 ? latestArticles.map((art, i) => (
               <article key={art.id} className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition group">
                 <div className={`h-48 ${["bg-gradient-to-br from-primary to-green-700", "bg-gradient-to-br from-purple-600 to-indigo-700", "bg-gradient-to-br from-amber-500 to-orange-600"][i % 3]} flex items-center justify-center`}>
@@ -164,16 +167,16 @@ export default function Home() {
       </section>
 
       {/* Courses */}
-      <section className="py-16">
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="container">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-12">
             <div>
               <h2 className="text-3xl font-bold">Kelas Terbaru</h2>
-              <p className="text-gray-600 mt-1">Belajar bersama ustadz berpengalaman</p>
+              <p className="text-gray-600 mt-2">Belajar bersama ustadz berpengalaman</p>
             </div>
-            <Link href="/courses" className="hidden sm:inline-block px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition text-sm font-semibold">Lihat Semua</Link>
+            <Link href="/courses" className="hidden sm:inline-block px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition text-sm font-semibold">Lihat Semua →</Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {latestCourses.length > 0 ? latestCourses.map((cls) => (
               <div key={cls.id} className="bg-white rounded-2xl overflow-hidden shadow hover:shadow-xl transition group border border-gray-100">
                 <div className="h-40 bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">

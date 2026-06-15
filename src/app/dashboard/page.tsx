@@ -81,15 +81,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container py-12">
-      <h1 className="text-4xl font-bold mb-2">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="container py-12">
+      <h1 className="text-3xl md:text-4xl font-bold mb-2">
         Assalamu&apos;alaikum, {user.displayName || user.email} 👋
       </h1>
       <p className="text-gray-600 mb-8">Selamat datang kembali di QuranBest</p>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-primary">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-primary hover:shadow-lg transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">Terakhir Dibaca</p>
@@ -101,7 +102,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+        <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-purple-500 hover:shadow-lg transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">Total Bookmark</p>
@@ -111,7 +112,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+        <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-amber-500 hover:shadow-lg transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">Total Donasi</p>
@@ -121,7 +122,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-600">
+        <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-green-600 hover:shadow-lg transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">Progress Khatam</p>
@@ -133,11 +134,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <h2 className="text-2xl font-bold mb-4">Aksi Cepat</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <h2 className="text-2xl font-bold mb-6">Aksi Cepat</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
         <Link
           href="/quran"
-          className="p-6 bg-gradient-to-br from-primary to-green-700 text-white rounded-xl hover:shadow-lg transition"
+          className="p-8 bg-gradient-to-br from-primary to-green-700 text-white rounded-2xl hover:shadow-xl transition"
         >
           <BookOpen size={28} className="mb-3" />
           <h3 className="font-bold text-lg mb-1">Lanjutkan Membaca</h3>
@@ -146,7 +147,7 @@ export default function DashboardPage() {
 
         <Link
           href="/courses"
-          className="p-6 bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-xl hover:shadow-lg transition"
+          className="p-8 bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-2xl hover:shadow-xl transition"
         >
           <BarChart3 size={28} className="mb-3" />
           <h3 className="font-bold text-lg mb-1">Ikuti Kelas</h3>
@@ -155,7 +156,7 @@ export default function DashboardPage() {
 
         <Link
           href="/donate"
-          className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition"
+          className="p-8 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl hover:shadow-xl transition"
         >
           <Heart size={28} className="mb-3" />
           <h3 className="font-bold text-lg mb-1">Berdonasi</h3>
@@ -164,14 +165,14 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Bookmarks */}
-      <h2 className="text-2xl font-bold mb-4">Bookmark Terbaru</h2>
+      <h2 className="text-2xl font-bold mb-6">Bookmark Terbaru</h2>
       {bookmarks.length > 0 ? (
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           {bookmarks.slice(0, 5).map((bm) => (
             <Link
               key={bm.id}
               href={`/quran/surah/${bm.surahNumber}`}
-              className="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition flex justify-between items-center"
+              className="p-5 bg-white border border-gray-200 rounded-2xl hover:shadow-md transition flex justify-between items-center group"
             >
               <div>
                 <p className="font-semibold">Surah {bm.surahNumber} : Ayat {bm.ayahNumber}</p>
@@ -186,13 +187,14 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="p-8 text-center bg-gray-50 rounded-xl text-gray-500">
+        <div className="p-12 text-center bg-gray-50 rounded-2xl text-gray-500">
           Belum ada bookmark.{" "}
           <Link href="/quran" className="text-primary font-semibold hover:underline">
             Mulai membaca Al-Qur&apos;an
           </Link>
         </div>
       )}
+      </div>
     </div>
   )
 }
