@@ -8,7 +8,7 @@ import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
 export function Navbar() {
-  const { user, loading } = useAuth()
+  const { user } = useAuth()
   const { logout } = useAuthStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -17,6 +17,15 @@ export function Navbar() {
     logout()
   }
 
+  const navLinks = [
+    { href: "/quran", label: "Quran" },
+    { href: "/prayer-times", label: "Jadwal Sholat" },
+    { href: "/articles", label: "Artikel" },
+    { href: "/courses", label: "Kelas" },
+    { href: "/donate", label: "Donasi" },
+    { href: "/community", label: "Komunitas" },
+  ]
+
   return (
     <nav className="sticky top-0 bg-white shadow-md z-50">
       <div className="container flex items-center justify-between h-16">
@@ -24,50 +33,38 @@ export function Navbar() {
           <div className="text-2xl font-bold text-primary">📖 QuranBest</div>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/quran" className="hover:text-primary transition">
-            Quran
-          </Link>
-          <Link href="/articles" className="hover:text-primary transition">
-            Artikel
-          </Link>
-          <Link href="/courses" className="hover:text-primary transition">
-            Kelas
-          </Link>
-          <Link href="/donate" className="hover:text-primary transition">
-            Donasi
-          </Link>
-          <Link href="/community" className="hover:text-primary transition">
-            Komunitas
-          </Link>
+        <div className="hidden lg:flex items-center gap-6">
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="text-sm hover:text-primary transition">
+              {link.label}
+            </Link>
+          ))}
         </div>
 
-        <div className="flex items-center gap-4">
-          {loading ? (
-            <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
-          ) : user ? (
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-sm hover:text-primary">
+        <div className="flex items-center gap-3">
+          {user ? (
+            <div className="hidden sm:flex items-center gap-3">
+              <Link href="/dashboard" className="text-sm hover:text-primary font-medium">
                 {user.displayName || user.email}
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                className="px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div className="flex gap-2">
+            <div className="hidden sm:flex gap-2">
               <Link
                 href="/auth/login"
-                className="px-4 py-2 text-primary border border-primary rounded hover:bg-primary hover:text-white transition"
+                className="px-4 py-1.5 text-primary border border-primary text-sm rounded-lg hover:bg-primary hover:text-white transition"
               >
                 Login
               </Link>
               <Link
                 href="/auth/register"
-                className="px-4 py-2 bg-primary text-white rounded hover:bg-green-700 transition"
+                className="px-4 py-1.5 bg-primary text-white text-sm rounded-lg hover:bg-green-700 transition"
               >
                 Daftar
               </Link>
@@ -75,7 +72,7 @@ export function Navbar() {
           )}
 
           <button
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -84,13 +81,38 @@ export function Navbar() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden border-t">
-          <div className="container flex flex-col py-4 gap-2">
-            <Link href="/quran" className="py-2">Quran</Link>
-            <Link href="/articles" className="py-2">Artikel</Link>
-            <Link href="/courses" className="py-2">Kelas</Link>
-            <Link href="/donate" className="py-2">Donasi</Link>
-            <Link href="/community" className="py-2">Komunitas</Link>
+        <div className="lg:hidden border-t bg-white">
+          <div className="container flex flex-col py-4 gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="py-2 px-2 rounded hover:bg-gray-100"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {!user && (
+              <div className="flex gap-2 pt-2 border-t mt-2">
+                <Link href="/auth/login" className="flex-1 text-center py-2 border border-primary text-primary rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                  Login
+                </Link>
+                <Link href="/auth/register" className="flex-1 text-center py-2 bg-primary text-white rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                  Daftar
+                </Link>
+              </div>
+            )}
+            {user && (
+              <div className="flex gap-2 pt-2 border-t mt-2">
+                <Link href="/dashboard" className="flex-1 text-center py-2 border border-primary text-primary rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                  Dashboard
+                </Link>
+                <button onClick={() => { handleLogout(); setMobileMenuOpen(false) }} className="flex-1 py-2 bg-red-500 text-white rounded-lg">
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

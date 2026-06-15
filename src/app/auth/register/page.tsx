@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { authService } from "@/lib/auth"
 import { useAuthStore } from "@/store/authStore"
-import { userService } from "@/services/firestoreService"
 import { Mail, Lock, User, Loader } from "lucide-react"
 
 export default function RegisterPage() {
@@ -23,6 +22,12 @@ export default function RegisterPage() {
     setLoading(true)
     setError("")
 
+    if (password.length < 6) {
+      setError("Password minimal 6 karakter")
+      setLoading(false)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError("Kata sandi tidak cocok")
       setLoading(false)
@@ -30,15 +35,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const firebaseUser = await authService.register(email, password)
-      
-      await userService.create({
-        email: firebaseUser.email || "",
-        name: name,
-        displayName: name,
-        photoURL: null,
-        role: "member",
-      })
+      const firebaseUser = await authService.register(email, password, name)
 
       setUser({
         uid: firebaseUser.uid,
@@ -64,15 +61,15 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+          <div className="mb-4 p-4 bg-red-50 border border-red-300 text-red-700 rounded-lg text-sm">
+            ⚠️ {error}
           </div>
         )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold mb-2">Nama Lengkap</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2">
+            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:border-primary transition">
               <User size={20} className="text-gray-400" />
               <input
                 type="text"
@@ -87,7 +84,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-sm font-semibold mb-2">Email</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2">
+            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:border-primary transition">
               <Mail size={20} className="text-gray-400" />
               <input
                 type="email"
@@ -102,30 +99,32 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-sm font-semibold mb-2">Kata Sandi</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2">
+            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:border-primary transition">
               <Lock size={20} className="text-gray-400" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Minimal 6 karakter"
                 className="ml-2 flex-1 outline-none"
                 required
+                minLength={6}
               />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-semibold mb-2">Konfirmasi Kata Sandi</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2">
+            <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:border-primary transition">
               <Lock size={20} className="text-gray-400" />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Ulangi kata sandi"
                 className="ml-2 flex-1 outline-none"
                 required
+                minLength={6}
               />
             </div>
           </div>

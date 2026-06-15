@@ -1,14 +1,14 @@
 "use client"
 
 import { useAuth } from "@/hooks/useAuth"
-import { useRouter } from "next/navigation"
+
 import { readingProgressService, bookmarkService, donationService } from "@/services/firestoreService"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bookmark, Heart, BarChart3 } from "lucide-react"
+import { BookOpen, Bookmark, Heart, BarChart3, LogIn } from "lucide-react"
 
 export default function DashboardPage() {
-  const router = useRouter()
+  
   const { user, loading } = useAuth()
   const [progress, setProgress] = useState<any>(null)
   const [bookmarks, setBookmarks] = useState<any[]>([])
@@ -17,12 +17,6 @@ export default function DashboardPage() {
     totalBookmarks: 0,
     totalDonations: 0,
   })
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/login")
-    }
-  }, [user, loading, router])
 
   useEffect(() => {
     if (user) {
@@ -52,113 +46,153 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">Memuat...</div>
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
+  // Not logged in - show login prompt
   if (!user) {
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md w-full mx-4">
+          <LogIn size={48} className="mx-auto text-primary mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Masuk ke Dashboard</h1>
+          <p className="text-gray-600 mb-6">
+            Silakan login untuk melihat dashboard dan progress belajar Anda
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/auth/login"
+              className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-green-700 transition text-center"
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/auth/register"
+              className="w-full py-3 border border-primary text-primary font-semibold rounded-lg hover:bg-green-50 transition text-center"
+            >
+              Daftar Akun Baru
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="container py-12">
-      <h1 className="text-4xl font-bold mb-8">Selamat Datang, {user.displayName || user.email}!</h1>
+      <h1 className="text-4xl font-bold mb-2">
+        Assalamu&apos;alaikum, {user.displayName || user.email} 👋
+      </h1>
+      <p className="text-gray-600 mb-8">Selamat datang kembali di QuranBest</p>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-primary">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-primary">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-2">Bacaan Hari Ini</p>
-              <p className="text-3xl font-bold">
-                {progress?.surahNumber || 0}:{progress?.ayahNumber || 0}
+              <p className="text-gray-500 text-sm mb-1">Terakhir Dibaca</p>
+              <p className="text-2xl font-bold">
+                {progress ? `${progress.surahNumber}:${progress.ayahNumber}` : "-"}
               </p>
             </div>
-            <BookOpen size={40} className="text-primary opacity-50" />
+            <BookOpen size={36} className="text-primary opacity-40" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-secondary">
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-2">Total Bookmark</p>
-              <p className="text-3xl font-bold">{stats.totalBookmarks}</p>
+              <p className="text-gray-500 text-sm mb-1">Total Bookmark</p>
+              <p className="text-2xl font-bold">{stats.totalBookmarks}</p>
             </div>
-            <Bookmark size={40} className="text-secondary opacity-50" />
+            <Bookmark size={36} className="text-purple-500 opacity-40" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-amber-500">
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-2">Total Donasi</p>
-              <p className="text-3xl font-bold">Rp{(stats.totalDonations * 50000).toLocaleString()}</p>
+              <p className="text-gray-500 text-sm mb-1">Total Donasi</p>
+              <p className="text-2xl font-bold">{stats.totalDonations}</p>
             </div>
-            <Heart size={40} className="text-amber-500 opacity-50" />
+            <Heart size={36} className="text-amber-500 opacity-40" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-600">
+        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-600">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-2">Progress Khatam</p>
-              <p className="text-3xl font-bold">0%</p>
+              <p className="text-gray-500 text-sm mb-1">Progress Khatam</p>
+              <p className="text-2xl font-bold">0%</p>
             </div>
-            <BarChart3 size={40} className="text-green-600 opacity-50" />
+            <BarChart3 size={36} className="text-green-600 opacity-40" />
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
+      <h2 className="text-2xl font-bold mb-4">Aksi Cepat</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <Link
           href="/quran"
-          className="p-6 bg-gradient-to-br from-primary to-green-700 text-white rounded-lg hover:shadow-lg transition"
+          className="p-6 bg-gradient-to-br from-primary to-green-700 text-white rounded-xl hover:shadow-lg transition"
         >
-          <h3 className="font-bold text-lg mb-2">Lanjutkan Membaca</h3>
-          <p className="opacity-90">Lanjutkan bacaan Al-Qur&apos;an Anda</p>
+          <BookOpen size={28} className="mb-3" />
+          <h3 className="font-bold text-lg mb-1">Lanjutkan Membaca</h3>
+          <p className="opacity-80 text-sm">Baca Al-Qur&apos;an dari terakhir dibaca</p>
         </Link>
 
         <Link
           href="/courses"
-          className="p-6 bg-gradient-to-br from-secondary to-purple-700 text-white rounded-lg hover:shadow-lg transition"
+          className="p-6 bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-xl hover:shadow-lg transition"
         >
-          <h3 className="font-bold text-lg mb-2">Ikuti Kelas</h3>
-          <p className="opacity-90">Daftar ke kelas Tahsin atau Tahfidz</p>
+          <BarChart3 size={28} className="mb-3" />
+          <h3 className="font-bold text-lg mb-1">Ikuti Kelas</h3>
+          <p className="opacity-80 text-sm">Daftar kelas Tahsin atau Tahfidz</p>
         </Link>
 
         <Link
           href="/donate"
-          className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition"
+          className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition"
         >
-          <h3 className="font-bold text-lg mb-2">Berdonasi</h3>
-          <p className="opacity-90">Dukung pendidikan Islam</p>
+          <Heart size={28} className="mb-3" />
+          <h3 className="font-bold text-lg mb-1">Berdonasi</h3>
+          <p className="opacity-80 text-sm">Dukung pendidikan Islam digital</p>
         </Link>
       </div>
 
       {/* Recent Bookmarks */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">Bookmark Terbaru</h2>
-        {bookmarks.length > 0 ? (
-          <div className="grid gap-4">
-            {bookmarks.slice(0, 5).map((bookmark) => (
-              <div key={bookmark.id} className="p-4 bg-white border border-gray-200 rounded-lg">
-                <p className="font-semibold">
-                  Surah {bookmark.surahNumber} : Ayat {bookmark.ayahNumber}
-                </p>
-                <p className="text-gray-600 text-sm mt-1">
-                  {bookmark.createdAt?.toDate ? new Date(bookmark.createdAt.toDate()).toLocaleDateString("id-ID") : "Recently"}
+      <h2 className="text-2xl font-bold mb-4">Bookmark Terbaru</h2>
+      {bookmarks.length > 0 ? (
+        <div className="grid gap-3">
+          {bookmarks.slice(0, 5).map((bm) => (
+            <Link
+              key={bm.id}
+              href={`/quran/surah/${bm.surahNumber}`}
+              className="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition flex justify-between items-center"
+            >
+              <div>
+                <p className="font-semibold">Surah {bm.surahNumber} : Ayat {bm.ayahNumber}</p>
+                <p className="text-gray-500 text-sm">
+                  {bm.createdAt?.toDate
+                    ? new Date(bm.createdAt.toDate()).toLocaleDateString("id-ID")
+                    : "Baru saja"}
                 </p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-6 text-center bg-gray-50 rounded-lg text-gray-600">
-            Belum ada bookmark. <Link href="/quran" className="text-primary font-semibold">Mulai membaca</Link>
-          </div>
-        )}
-      </div>
+              <span className="text-primary">→</span>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="p-8 text-center bg-gray-50 rounded-xl text-gray-500">
+          Belum ada bookmark.{" "}
+          <Link href="/quran" className="text-primary font-semibold hover:underline">
+            Mulai membaca Al-Qur&apos;an
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

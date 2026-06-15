@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { surahService } from "@/services/firestoreService"
+import { collection, getDocs } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 import { BookOpen, Search } from "lucide-react"
 
 interface Surah {
@@ -12,6 +13,7 @@ interface Surah {
   nameLatin: string
   meaning: string
   totalAyah: number
+  revelation: string
 }
 
 export default function QuranPage() {
@@ -23,9 +25,24 @@ export default function QuranPage() {
   useEffect(() => {
     const fetchSurahs = async () => {
       try {
-        const data = await surahService.getAll()
-        setSurahs(data as Surah[])
-        setFiltered(data as Surah[])
+        const querySnapshot = await getDocs(collection(db, "surahs"))
+        const data = querySnapshot.docs
+          .map((doc) => {
+            const d = doc.data()
+            return {
+              id: doc.id,
+              number: Number(d.number),
+              nameAr: d.nameAr,
+              nameLatin: d.nameLatin,
+              meaning: d.meaning,
+              totalAyah: Number(d.totalAyah),
+              revelation: d.revelation || "makkah",
+            }
+          })
+          .sort((a, b) => a.number - b.number)
+
+        setSurahs(data)
+        setFiltered(data)
       } catch (error) {
         console.error("Error fetching surahs:", error)
       } finally {
@@ -36,18 +53,28 @@ export default function QuranPage() {
   }, [])
 
   useEffect(() => {
-    const result = surahs.filter(
-      (surah) =>
-        surah.nameLatin.toLowerCase().includes(search.toLowerCase()) ||
-        surah.meaning.toLowerCase().includes(search.toLowerCase())
+    if (!search) {
+      setFiltered(surahs)
+      return
+    }
+    const q = search.toLowerCase()
+    setFiltered(
+      surahs.filter(
+        (s) =>
+          s.nameLatin.toLowerCase().includes(q) ||
+          s.meaning.toLowerCase().includes(q) ||
+          String(s.number) === q
+      )
     )
-    setFiltered(result)
   }, [search, surahs])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">Memuat...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-600">Memuat daftar surah...</p>
+        </div>
       </div>
     )
   }
@@ -55,14 +82,14 @@ export default function QuranPage() {
   return (
     <div className="container py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">Al-Qur'an</h1>
-        <p className="text-gray-600 mb-6">Pilih Surah untuk mulai membaca</p>
+        <h1 className="text-4xl font-bold mb-2">Al-Qur&apos;an</h1>
+        <p className="text-gray-600 mb-6">Pilih surah untuk mulai membaca</p>
 
-        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 max-w-md">
+        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-4 py-3 max-w-md focus-within:border-primary transition">
           <Search size={20} className="text-gray-400" />
           <input
             type="text"
-            placeholder="Cari surah..."
+            placeholder="Cari surah atau arti..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 outline-none"
@@ -76,23 +103,31 @@ export default function QuranPage() {
             <Link
               key={surah.id}
               href={`/quran/surah/${surah.number}`}
-              className="p-4 border border-gray-200 rounded-lg hover:shadow-lg transition cursor-pointer"
+              className="p-4 border border-gray-200 rounded-xl hover:shadow-lg hover:border-primary transition cursor-pointer bg-white"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-primary text-white rounded flex items-center justify-center font-bold">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center font-bold flex-shrink-0">
                   {surah.number}
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg">{surah.nameLatin}</h3>
-                  <p className="text-primary">{surah.nameAr}</p>
-                  <p className="text-sm text-gray-600 mt-1">{surah.meaning}</p>
-                  <p className="text-xs text-gray-500 mt-2">{surah.totalAyah} ayat</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold">{surah.nameLatin}</h3>
+                      <p className="text-sm text-gray-600">{surah.meaning}</p>
+                    </div>
+                    <p className="text-primary text-lg">{surah.nameAr}</p>
+                  </div>
+                  <div className="flex gap-2 mt-2 text-xs text-gray-500">
+                    <span>{surah.totalAyah} ayat</span>
+                    <span>•</span>
+                    <span className="capitalize">{surah.revelation}</span>
+                  </div>
                 </div>
               </div>
             </Link>
           ))
         ) : (
-          <div className="col-span-full text-center py-12">
+          <div className="col-span-full text-center py-16">
             <BookOpen size={48} className="mx-auto text-gray-300 mb-4" />
             <p className="text-gray-600">Surah tidak ditemukan</p>
           </div>

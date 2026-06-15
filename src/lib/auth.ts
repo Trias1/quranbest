@@ -5,21 +5,40 @@ import {
   signOut,
   signInWithPopup,
   GoogleAuthProvider,
-  setPersistence,
-  browserLocalPersistence,
   onAuthStateChanged,
+  updateProfile,
 } from "firebase/auth"
 
-// Set persistence
-setPersistence(auth, browserLocalPersistence)
+const firebaseErrorMessages: Record<string, string> = {
+  "auth/configuration-not-found": "Firebase Authentication belum diaktifkan. Silakan enable Email/Password di Firebase Console → Authentication → Sign-in method.",
+  "auth/email-already-in-use": "Email sudah terdaftar. Silakan gunakan email lain atau login.",
+  "auth/invalid-email": "Format email tidak valid.",
+  "auth/operation-not-allowed": "Metode login ini belum diaktifkan di Firebase Console.",
+  "auth/weak-password": "Password terlalu lemah. Gunakan minimal 6 karakter.",
+  "auth/user-disabled": "Akun ini telah dinonaktifkan.",
+  "auth/user-not-found": "Email tidak terdaftar.",
+  "auth/wrong-password": "Password salah.",
+  "auth/invalid-credential": "Email atau password salah.",
+  "auth/too-many-requests": "Terlalu banyak percobaan. Coba lagi nanti.",
+  "auth/network-request-failed": "Koneksi internet bermasalah. Periksa jaringan Anda.",
+  "auth/popup-closed-by-user": "Login Google dibatalkan.",
+}
+
+function getErrorMessage(error: any): string {
+  const code = error?.code || ""
+  return firebaseErrorMessages[code] || error?.message || "Terjadi kesalahan. Silakan coba lagi."
+}
 
 export const authService = {
-  async register(email: string, password: string) {
+  async register(email: string, password: string, displayName?: string) {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password)
+      if (displayName && result.user) {
+        await updateProfile(result.user, { displayName })
+      }
       return result.user
     } catch (error: any) {
-      throw new Error(error.message)
+      throw new Error(getErrorMessage(error))
     }
   },
 
@@ -28,7 +47,7 @@ export const authService = {
       const result = await signInWithEmailAndPassword(auth, email, password)
       return result.user
     } catch (error: any) {
-      throw new Error(error.message)
+      throw new Error(getErrorMessage(error))
     }
   },
 
@@ -38,7 +57,7 @@ export const authService = {
       const result = await signInWithPopup(auth, provider)
       return result.user
     } catch (error: any) {
-      throw new Error(error.message)
+      throw new Error(getErrorMessage(error))
     }
   },
 
@@ -46,7 +65,7 @@ export const authService = {
     try {
       await signOut(auth)
     } catch (error: any) {
-      throw new Error(error.message)
+      throw new Error(getErrorMessage(error))
     }
   },
 

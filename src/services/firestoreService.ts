@@ -8,26 +8,44 @@ import {
   doc,
   query,
   where,
+  Timestamp,
+  setDoc,
+  orderBy,
 } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import * as Types from "@/types"
 
+// Helper to convert Firestore Timestamp to Date
+const convertTimestampToDate = (data: any) => {
+  if (data.createdAt instanceof Timestamp) {
+    data.createdAt = data.createdAt.toDate()
+  }
+  if (data.updatedAt instanceof Timestamp) {
+    data.updatedAt = data.updatedAt.toDate()
+  }
+  if (data.lastRead instanceof Timestamp) {
+    data.lastRead = data.lastRead.toDate()
+  }
+  return data
+}
+
 // Users
 export const userService = {
-  async create(data: Omit<Types.User, "uid">) {
-    const docRef = await addDoc(collection(db, "users"), {
+  async create(data: Omit<Types.User, "uid"> & { uid: string }) {
+    const docRef = doc(db, "users", data.uid); // Use UID as document ID
+    await setDoc(docRef, {
       ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
-    return docRef.id
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    return docRef.id;
   },
 
   async getById(userId: string) {
     try {
       const docRef = doc(db, "users", userId)
       const docSnap = await getDoc(docRef)
-      return docSnap.exists() ? docSnap.data() : null
+      return docSnap.exists() ? convertTimestampToDate({ id: docSnap.id, ...docSnap.data() }) : null
     } catch (error) {
       console.error("Error getting user:", error)
       return null
@@ -38,7 +56,7 @@ export const userService = {
     try {
       await updateDoc(doc(db, "users", userId), {
         ...data,
-        updatedAt: new Date(),
+        updatedAt: Timestamp.now(),
       })
     } catch (error) {
       console.error("Error updating user:", error)
@@ -50,30 +68,20 @@ export const userService = {
 export const surahService = {
   async getAll() {
     try {
-      const querySnapshot = await getDocs(collection(db, "surahs"))
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      const q = query(collection(db, "surahs"), orderBy("number")); // Order by surah number
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting surahs:", error)
       return []
     }
   },
 
-  async getById(surahId: string) {
+  async getByNumber(surahNumber: number) {
     try {
-      const docRef = doc(db, "surahs", surahId)
-      const docSnap = await getDoc(docRef)
-      return docSnap.exists() ? docSnap.data() : null
-    } catch (error) {
-      console.error("Error getting surah:", error)
-      return null
-    }
-  },
-
-  async getByNumber(number: number) {
-    try {
-      const q = query(collection(db, "surahs"), where("number", "==", number))
+      const q = query(collection(db, "surahs"), where("number", "==", surahNumber))
       const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.length > 0 ? querySnapshot.docs[0].data() : null
+      return querySnapshot.docs.length > 0 ? convertTimestampToDate({ id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() }) : null
     } catch (error) {
       console.error("Error getting surah by number:", error)
       return null
@@ -83,11 +91,11 @@ export const surahService = {
 
 // Ayahs
 export const ayahService = {
-  async getBySurah(surahId: string) {
+  async getBySurah(surahNumber: number) {
     try {
-      const q = query(collection(db, "ayahs"), where("surahId", "==", surahId))
+      const q = query(collection(db, "ayahs"), where("surahNumber", "==", surahNumber))
       const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting ayahs:", error)
       return []
@@ -98,7 +106,7 @@ export const ayahService = {
     try {
       const docRef = doc(db, "ayahs", ayahId)
       const docSnap = await getDoc(docRef)
-      return docSnap.exists() ? docSnap.data() : null
+      return docSnap.exists() ? convertTimestampToDate({ id: docSnap.id, ...docSnap.data() }) : null
     } catch (error) {
       console.error("Error getting ayah:", error)
       return null
@@ -110,14 +118,15 @@ export const ayahService = {
 export const bookmarkService = {
   async create(userId: string, ayahId: string, surahNumber: number, ayahNumber: number) {
     try {
-      const docRef = await addDoc(collection(db, "bookmarks"), {
+      const docRef = doc(db, "bookmarks", `${userId}_${ayahId}`); // Use composite ID
+      await setDoc(docRef, {
         userId,
         ayahId,
         surahNumber,
         ayahNumber,
-        createdAt: new Date(),
-      })
-      return docRef.id
+        createdAt: Timestamp.now(),
+      });
+      return docRef.id;
     } catch (error) {
       console.error("Error creating bookmark:", error)
       return ""
@@ -128,16 +137,16 @@ export const bookmarkService = {
     try {
       const q = query(collection(db, "bookmarks"), where("userId", "==", userId))
       const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting bookmarks:", error)
       return []
     }
   },
 
-  async delete(bookmarkId: string) {
+  async delete(bookmarkDocId: string) {
     try {
-      await deleteDoc(doc(db, "bookmarks", bookmarkId))
+      await deleteDoc(doc(db, "bookmarks", bookmarkDocId))
     } catch (error) {
       console.error("Error deleting bookmark:", error)
     }
@@ -163,13 +172,14 @@ export const bookmarkService = {
 export const readingProgressService = {
   async create(userId: string, surahNumber: number, ayahNumber: number) {
     try {
-      const docRef = await addDoc(collection(db, "readingProgress"), {
+      const docRef = doc(db, "readingProgress", userId); // Use userId as doc ID
+      await setDoc(docRef, {
         userId,
         surahNumber,
         ayahNumber,
-        lastRead: new Date(),
-      })
-      return docRef.id
+        lastRead: Timestamp.now(),
+      });
+      return docRef.id;
     } catch (error) {
       console.error("Error creating reading progress:", error)
       return ""
@@ -178,11 +188,8 @@ export const readingProgressService = {
 
   async getByUser(userId: string) {
     try {
-      const q = query(collection(db, "readingProgress"), where("userId", "==", userId))
-      const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.length > 0
-        ? { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() }
-        : null
+      const docSnap = await getDoc(doc(db, "readingProgress", userId))
+      return docSnap.exists() ? convertTimestampToDate({ id: docSnap.id, ...docSnap.data() }) : null
     } catch (error) {
       console.error("Error getting reading progress:", error)
       return null
@@ -191,18 +198,12 @@ export const readingProgressService = {
 
   async update(userId: string, surahNumber: number, ayahNumber: number) {
     try {
-      const q = query(collection(db, "readingProgress"), where("userId", "==", userId))
-      const querySnapshot = await getDocs(q)
-      if (querySnapshot.docs.length > 0) {
-        const docId = querySnapshot.docs[0].id
-        await updateDoc(doc(db, "readingProgress", docId), {
-          surahNumber,
-          ayahNumber,
-          lastRead: new Date(),
-        })
-      } else {
-        await this.create(userId, surahNumber, ayahNumber)
-      }
+      const docRef = doc(db, "readingProgress", userId);
+      await updateDoc(docRef, {
+        surahNumber,
+        ayahNumber,
+        lastRead: Timestamp.now(),
+      });
     } catch (error) {
       console.error("Error updating reading progress:", error)
     }
@@ -213,13 +214,13 @@ export const readingProgressService = {
 export const articleService = {
   async create(data: Omit<Types.Article, "id" | "createdAt" | "updatedAt" | "views">) {
     try {
-      const docRef = await addDoc(collection(db, "articles"), {
+      const newDocRef = await addDoc(collection(db, "articles"), {
         ...data,
         views: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      return docRef.id
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+      return newDocRef.id;
     } catch (error) {
       console.error("Error creating article:", error)
       return ""
@@ -228,8 +229,9 @@ export const articleService = {
 
   async getAll() {
     try {
-      const querySnapshot = await getDocs(collection(db, "articles"))
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      const q = query(collection(db, "articles"), orderBy("createdAt", "desc")); // Order by creation date descending
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting articles:", error)
       return []
@@ -240,7 +242,7 @@ export const articleService = {
     try {
       const docRef = doc(db, "articles", articleId)
       const docSnap = await getDoc(docRef)
-      return docSnap.exists() ? docSnap.data() : null
+      return docSnap.exists() ? convertTimestampToDate({ id: docSnap.id, ...docSnap.data() }) : null
     } catch (error) {
       console.error("Error getting article:", error)
       return null
@@ -251,7 +253,7 @@ export const articleService = {
     try {
       const q = query(collection(db, "articles"), where("slug", "==", slug))
       const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.length > 0 ? querySnapshot.docs[0].data() : null
+      return querySnapshot.docs.length > 0 ? convertTimestampToDate({ id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() }) : null
     } catch (error) {
       console.error("Error getting article by slug:", error)
       return null
@@ -262,7 +264,7 @@ export const articleService = {
     try {
       await updateDoc(doc(db, "articles", articleId), {
         ...data,
-        updatedAt: new Date(),
+        updatedAt: Timestamp.now(),
       })
     } catch (error) {
       console.error("Error updating article:", error)
@@ -274,13 +276,13 @@ export const articleService = {
 export const courseService = {
   async create(data: Omit<Types.Course, "id" | "students" | "createdAt" | "updatedAt">) {
     try {
-      const docRef = await addDoc(collection(db, "courses"), {
+      const newDocRef = await addDoc(collection(db, "courses"), {
         ...data,
         students: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      return docRef.id
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+      return newDocRef.id;
     } catch (error) {
       console.error("Error creating course:", error)
       return ""
@@ -289,8 +291,9 @@ export const courseService = {
 
   async getAll() {
     try {
-      const querySnapshot = await getDocs(collection(db, "courses"))
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      const q = query(collection(db, "courses"), orderBy("createdAt", "desc")); // Order by creation date descending
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting courses:", error)
       return []
@@ -301,7 +304,7 @@ export const courseService = {
     try {
       const docRef = doc(db, "courses", courseId)
       const docSnap = await getDoc(docRef)
-      return docSnap.exists() ? docSnap.data() : null
+      return docSnap.exists() ? convertTimestampToDate({ id: docSnap.id, ...docSnap.data() }) : null
     } catch (error) {
       console.error("Error getting course:", error)
       return null
@@ -312,7 +315,7 @@ export const courseService = {
     try {
       const q = query(collection(db, "courses"), where("instructorId", "==", instructorId))
       const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting courses by instructor:", error)
       return []
@@ -324,14 +327,25 @@ export const courseService = {
 export const donationService = {
   async create(data: Omit<Types.Donation, "id" | "createdAt">) {
     try {
-      const docRef = await addDoc(collection(db, "donations"), {
+      const newDocRef = await addDoc(collection(db, "donations"), {
         ...data,
-        createdAt: new Date(),
-      })
-      return docRef.id
+        createdAt: Timestamp.now(),
+      });
+      return newDocRef.id;
     } catch (error) {
       console.error("Error creating donation:", error)
       return ""
+    }
+  },
+
+  async getAll() {
+    try {
+      const q = query(collection(db, "donations"), orderBy("createdAt", "desc")); // Order by creation date descending
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
+    } catch (error) {
+      console.error("Error getting donations:", error)
+      return []
     }
   },
 
@@ -339,7 +353,7 @@ export const donationService = {
     try {
       const q = query(collection(db, "donations"), where("userId", "==", userId))
       const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
     } catch (error) {
       console.error("Error getting donations:", error)
       return []
@@ -348,9 +362,45 @@ export const donationService = {
 
   async update(donationId: string, status: string) {
     try {
-      await updateDoc(doc(db, "donations", donationId), { status })
+      await updateDoc(doc(db, "donations", donationId), { status, updatedAt: Timestamp.now() })
     } catch (error) {
       console.error("Error updating donation:", error)
+    }
+  },
+}
+
+// Notifications
+export const notificationService = {
+  async create(data: Omit<Types.Notification, "id" | "createdAt">) {
+    try {
+      const newDocRef = await addDoc(collection(db, "notifications"), {
+        ...data,
+        read: false,
+        createdAt: Timestamp.now(),
+      });
+      return newDocRef.id;
+    } catch (error) {
+      console.error("Error creating notification:", error)
+      return ""
+    }
+  },
+
+  async getByUser(userId: string) {
+    try {
+      const q = query(collection(db, "notifications"), where("userId", "==", userId))
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map((doc) => convertTimestampToDate({ id: doc.id, ...doc.data() }))
+    } catch (error) {
+      console.error("Error getting notifications:", error)
+      return []
+    }
+  },
+
+  async markAsRead(notificationId: string) {
+    try {
+      await updateDoc(doc(db, "notifications", notificationId), { read: true, updatedAt: Timestamp.now() })
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
     }
   },
 }
